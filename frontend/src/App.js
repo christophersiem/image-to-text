@@ -1,5 +1,5 @@
 import {useState} from "react";
-import axios from "axios";
+import {uploadImage} from "./service/image-upload-service";
 
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
 
     const handleSubmit = event => {
         event.preventDefault();
-        axios.post("/api/image/upload", image).catch(error => console.error(error.message))
+uploadImage(image);
     }
     return (
         <div className="App">
