@@ -2,9 +2,7 @@ import styled from 'styled-components/macro'
 
 export default function ShowPhoto({ detectedText }) {
   return (
-    <Wrapper>
-      {detectedText && <img src={detectedText.url} alt="" />}
-    </Wrapper>
+    <Wrapper>{detectedText && <img src={detectedText.url} alt="" />}</Wrapper>
   )
 }
 
