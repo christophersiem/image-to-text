@@ -24,5 +24,6 @@ public class AwsImageUploadController {
     @PostMapping
     public DetectedText uploadImage(@RequestParam("image")MultipartFile file) throws IOException {
         return awsImageUploadService.uploadImage(file);
+
     }
 }

@@ -1,7 +1,6 @@
 package de.csiem.backend.service;
 
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -16,16 +15,13 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import de.csiem.backend.model.DetectedText;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class AwsImageUploadService {
@@ -62,8 +58,7 @@ public class AwsImageUploadService {
             e.printStackTrace();
         }
         String imageUrl = getPreSignedUrl(file.getOriginalFilename());
-        Optional<DetectedText> textFromImage = awsImageToTextService.getTextFromImage(file.getOriginalFilename(),imageUrl);
-        return textFromImage.orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "No text detected"));
+        return awsImageToTextService.getTextFromImage(file.getOriginalFilename(),imageUrl);
     }
 
     private String getPreSignedUrl(String fileName){

@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Service
 public class AwsImageToTextService {
@@ -16,7 +17,7 @@ public class AwsImageToTextService {
     private String bucketName;
 
 
-    public Optional<DetectedText> getTextFromImage(String photo, String imageUrl) {
+    public DetectedText getTextFromImage(String photo, String imageUrl) {
         AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
 
         DetectTextRequest request = new DetectTextRequest()
@@ -29,13 +30,23 @@ public class AwsImageToTextService {
             DetectTextResult result = rekognitionClient.detectText(request);
             List<TextDetection> textDetections = result.getTextDetections();
 
-            return textDetections.stream()
-                    .filter(textDetection -> textDetection.getId().equals(0))
-                    .map(textDetection -> DetectedText.builder().confidence(textDetection.getConfidence()).text(textDetection.getDetectedText()).imageUrl(imageUrl).build())
-                    .findFirst();
+            String detectedTextAsString = textDetections.stream()
+                    .filter(textDetection -> textDetection.getType().equals("LINE"))
+                    .filter(textDetection -> textDetection.getConfidence() > 80)
+                    .map(TextDetection::getDetectedText).collect(Collectors.joining(" "));
+
+
+            double averageConfidence =  textDetections.stream()
+                    .filter(textDetection -> textDetection.getType().equals("LINE"))
+                    .map(TextDetection::getConfidence)
+                    .filter(confidence -> confidence > 80).mapToDouble(d -> d).average().orElse(0.0);
+
+
+
+            return DetectedText.builder().text(detectedTextAsString).url(imageUrl).confidence(averageConfidence).build();
 
         } catch(AmazonRekognitionException e) {
             e.printStackTrace();
-        } return Optional.empty();
+        } return null;
     }
 }
